@@ -97,7 +97,31 @@ tab1, tab2 = st.tabs(["Tableau de Bord Executif (KPI)", "Portail d'Ingestion Omn
 # =====================================================================
 # TAB 1: EXECUTIVE KPI DASHBOARD
 # =====================================================================
-# --- SECTION GRAPHIQUES AGRANDIS ---
+# =====================================================================
+# TAB 1: EXECUTIVE KPI DASHBOARD
+# =====================================================================
+with tab1:
+    st.title("Plateforme de Veille Strategique Locale")
+    st.subheader("Roche Tunisia Affiliee — Dashboard d'Analyse Finie")
+    st.markdown("Transformation automatique des donnees qualitatives fragmentees de l'ecosysteme en indicateurs decisionnels.")
+    st.markdown("---")
+    
+    # Mathematical aggregation for key performance indicators
+    total_insights = len(filtered_df)
+    actionable_count = filtered_df['Is_Actionable'].sum()
+    actionable_rate = (actionable_count / total_insights * 100) if total_insights > 0 else 0
+
+    kpi1, kpi2, kpi3 = st.columns(3)
+    with kpi1:
+        st.metric(label="Total des Insights Traites", value=f"{total_insights} lignes")
+    with kpi2:
+        st.metric(label="Alertes Actionnables Identifiees", value=f"{actionable_count} insights")
+    with kpi3:
+        st.metric(label="Taux d'Actionnabilite", value=f"{actionable_rate:.1f}%")
+
+    st.markdown("---")
+
+    # --- SECTION GRAPHIQUES AGRANDIS ---
     st.subheader("Volume Partage par Piliers Strategiques")
     target_cols = [
         'Cat_Access_And_Policy', 'Cat_Competitor_Intelligence', 
@@ -117,14 +141,13 @@ tab1, tab2 = st.tabs(["Tableau de Bord Executif (KPI)", "Portail d'Ingestion Omn
         color_continuous_scale='Blues', 
         text_auto=True
     )
-    # Hauteur augmentee a 450 et suppression de la barre de legende a droite
     fig_pillar.update_layout(showlegend=False, coloraxis_showscale=False, height=450)
     st.plotly_chart(fig_pillar, use_container_width=True)
 
     st.markdown("---")
 
     st.subheader("Distribution des Comptes Institutionnels Principaux (HCOs)")
-    hco_counts = filtered_df['hco'].value_counts().head(8).reset_index() # Affichage du Top 8 au lieu du Top 6
+    hco_counts = filtered_df['hco'].value_counts().head(8).reset_index()
     hco_counts.columns = ['Etablissement / HCO', 'Total Insights']
     
     fig_hco = px.bar(
@@ -135,9 +158,19 @@ tab1, tab2 = st.tabs(["Tableau de Bord Executif (KPI)", "Portail d'Ingestion Omn
         color_continuous_scale='Blues',
         text_auto=True
     )
-    # Les barres prennent 100% de la largeur, les longs noms ont de la place en bas
     fig_hco.update_layout(xaxis_tickangle=-15, showlegend=False, coloraxis_showscale=False, height=450)
     st.plotly_chart(fig_hco, use_container_width=True)
+
+    st.markdown("---")
+    st.subheader("Flux d'Audit des Insights en Temps Reel")
+    
+    display_df = filtered_df.copy()
+    display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
+    st.dataframe(
+        display_df[['Date', 'Territory', 'Product_Clean', 'insight title', 'insight description', 'Category_ML']], 
+        height=250, 
+        use_container_width=True
+    )
 # =====================================================================
 # TAB 2: OMNI-CHANNEL INGESTION (Task Force Gateway)
 # =====================================================================
